@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "parser.h": "c",
+        "common.h": "c",
+        "tokens.h": "c",
+        "random": "c",
+        "iosfwd": "c",
+        "functional": "c"
+    }
+}
