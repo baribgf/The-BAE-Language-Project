@@ -1,0 +1,42 @@
+PROGRAM -> STMNT PROGRAM
+         | newline PROGRAM
+         | EOF
+         | e
+
+STMNT    -> ASSIGN
+         | FUNCALL
+         | IO
+
+ASSIGN  -> ident = EXPR
+
+EXPR    -> EXPR' EXPR''
+
+EXPR'   -> FUNDEF
+         | FUNCALL
+         | ( EXPR )
+         | not EXPR'
+         | ident
+         | bit
+
+EXPR''  -> or EXPR
+         | and EXPR
+         | e
+
+FUNCALL -> ident ( ARGS )
+
+ARGS    -> EXPR ARGS'
+         | e
+
+ARGS'   -> , EXPR ARGS'
+         | e
+
+FUNDEF  -> < PARAMS > { PROGRAM }
+
+PARAMS  -> ident PARAMS'
+         | e
+
+PARAMS' -> , ident PARAMS'
+         | e
+
+IO      -> input EXPR
+         | output EXPR

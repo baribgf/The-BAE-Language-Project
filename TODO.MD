@@ -1,0 +1,1 @@
+- Make sure the compiler erases all leading whitespaces of source code at first.
