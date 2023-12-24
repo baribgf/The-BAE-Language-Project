@@ -1,7 +1,9 @@
 A = 0
 B = 1
 C = A + B
-D = A . B
-XOR = <a, b> { r = !a.b + a.!b }
-E = !XOR(A + B) . C
-<< E 
+
+XOR = <a, b> {
+    x = !a.b
+    y = a.!b
+    r = x + y
+}

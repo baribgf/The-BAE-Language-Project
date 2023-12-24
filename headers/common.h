@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #ifndef TOKENS_H
@@ -69,12 +70,16 @@ typedef enum {
     AST_NODE_TYPE_NEG,
     AST_NODE_TYPE_DISJ,
     AST_NODE_TYPE_CONJ,
+    AST_NODE_TYPE_NOT,
+    AST_NODE_TYPE_OR,
+    AST_NODE_TYPE_AND,
     AST_NODE_TYPE_FUNCALL,
     AST_NODE_TYPE_ARG,
     AST_NODE_TYPE_FUNDEF,
     AST_NODE_TYPE_PARAM,
     AST_NODE_TYPE_INPUT,
-    AST_NODE_TYPE_OUTPUT
+    AST_NODE_TYPE_OUTPUT,
+    AST_NODE_TYPE_OPERATOR,
 } AST_Node_Type;
 
 typedef struct AST_Node_t
@@ -90,12 +95,45 @@ typedef struct AST_Node_t
     struct AST_Node_t *next_param;      // for param node
     struct AST_Node_t *left_side;       // for expression node
     struct AST_Node_t *right_side;      // for expression node
-    struct AST_Node_t *name;            // for identifier node
-    struct AST_Node_t *value;           // for bit node
+    struct AST_Node_t *operator;        // for left & right side nodes
+    struct AST_Node_t *operand;         // for left & right side nodes
     struct AST_Node_t *expand;
+    char name[10];                      // for identifier node
+    int value;                          // for bit node
 } AST_Node;
 
+typedef struct stack_node_astn_t
+{
+    AST_Node *value;
+    struct stack_node_astn_t *prev;
+} Stack_Node_ASTN;
+
+typedef struct
+{
+    Stack_Node_ASTN *top;
+    int size;
+} Stack_ASTN;
+
 AST_Node *create_ast_node(AST_Node_Type type);
+AST_Node *create_AST_Program_Node(AST_Node *first_stmnt);
+AST_Node *create_AST_Stmnt_Node(AST_Node *expand, AST_Node *next_stmnt);
+AST_Node *create_AST_Assign_Node(AST_Node *ident, AST_Node *expr);
+AST_Node *create_AST_Funcall_Node(AST_Node *ident, AST_Node *first_arg);
+AST_Node *create_AST_Input_Node(AST_Node *ident);
+AST_Node *create_AST_Output_Node(AST_Node *expr);
+AST_Node *create_AST_Arg_Node(AST_Node *expr, AST_Node *next_arg);
+AST_Node *create_AST_Fundef_Node(AST_Node *first_param, AST_Node *first_stmnt);
+AST_Node *create_AST_Param_Node(AST_Node *ident, AST_Node *next_param);
+AST_Node *create_AST_Expr_Node(AST_Node *expand);
+AST_Node *create_AST_LSide_Node(AST_Node *expand, AST_Node *operator);
+AST_Node *create_AST_RSide_Node(AST_Node *operator, AST_Node *operand);
+AST_Node *create_AST_Neg_Node(AST_Node *expr);
+AST_Node *create_AST_Disj_Node(AST_Node *left_side, AST_Node *right_side);
+AST_Node *create_AST_Conj_Node(AST_Node *left_side, AST_Node *right_side);
+AST_Node *create_AST_Ident_Node(char *name);
+AST_Node *create_AST_Bit_Node(int value);
+AST_Node *create_AST_Operator_Node(AST_Node_Type type);
+void print_ast(AST_Node *root);
 void destroy_ast_node(AST_Node *node);
 
 extern FILE *yyin;
@@ -119,5 +157,11 @@ int destroy_stack_i(Stack_I *stack);
 int push_stack_i(int value, Stack_I *stack);
 int pop_stack_i(Stack_I *stack);
 int print_stack_i(Stack_I *stack);
+
+Stack_ASTN *create_stack_astn();
+int destroy_stack_astn(Stack_ASTN *stack);
+int push_stack_astn(AST_Node *value, Stack_ASTN *stack);
+AST_Node *pop_stack_astn(Stack_ASTN *stack);
+int print_stack_astn(Stack_ASTN *stack);
 
 #endif // HELPER_H

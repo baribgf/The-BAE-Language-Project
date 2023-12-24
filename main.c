@@ -7,6 +7,7 @@ int token_pos, token_count, proc, blank_source;
 TOKEN token;
 Stack_S *RDStack;
 Stack_I *State_Stack;
+Stack_ASTN *AST_Stack;
 
 int main(int argc, char *argv[])
 {
@@ -38,13 +39,15 @@ int main(int argc, char *argv[])
     token_pos = 0;
     RDStack = create_stack_s();
     State_Stack = create_stack_i();
+    AST_Stack = create_stack_astn();
 
     TOKEN lat = perform_lookahead();
     blank_source = (lat == TOKEN_EOF) ? 1 : 0; // Must first erase all leading whitespaces !
 
     int state = Program();
 
-    // print_stack_i(State_Stack);
+    AST_Node *root_node = pop_stack_astn(AST_Stack);
+    print_ast(root_node);
 
     if (!blank_source)
     {

@@ -59,13 +59,13 @@ char *token_name(TOKEN t)
 
 Stack_S *create_stack_s()
 {
-    Stack_Node_S *top = (Stack_Node_S *)malloc(sizeof(top));
+    Stack_Node_S *top = (Stack_Node_S *)malloc(sizeof(*top));
     CHECK_MALLOC(top);
 
     top->prev = NULL;
     top->value = NULL;
 
-    Stack_S *stack = (Stack_S *)malloc(sizeof(stack));
+    Stack_S *stack = (Stack_S *)malloc(sizeof(*stack));
     CHECK_MALLOC(stack);
 
     stack->top = top;
@@ -164,13 +164,13 @@ int print_stack_s(Stack_S *stack)
 
 Stack_I *create_stack_i()
 {
-    Stack_Node_I *top = (Stack_Node_I *)malloc(sizeof(top));
+    Stack_Node_I *top = (Stack_Node_I *)malloc(sizeof(*top));
     CHECK_MALLOC(top);
 
     top->prev = NULL;
     top->value = 0;
 
-    Stack_I *stack = (Stack_I *)malloc(sizeof(stack));
+    Stack_I *stack = (Stack_I *)malloc(sizeof(*stack));
     CHECK_MALLOC(stack);
 
     stack->top = top;
@@ -266,7 +266,7 @@ int print_stack_i(Stack_I *stack)
 
 AST_Node *create_ast_node(AST_Node_Type type)
 {
-    AST_Node *node = (AST_Node *)malloc(sizeof(node));
+    AST_Node *node = (AST_Node *)malloc(sizeof(*node));
     CHECK_MALLOC(node)
     node->type = type;
     node->first_stmnt  = NULL;
@@ -279,9 +279,11 @@ AST_Node *create_ast_node(AST_Node_Type type)
     node->next_param   = NULL;
     node->left_side    = NULL;
     node->right_side   = NULL;
-    node->name         = NULL;
-    node->value        = NULL;
+    node->operator     = NULL;
+    node->operand      = NULL;
     node->expand       = NULL;
+    // node->name         = "";
+    node->value        = -1;
     return node;
 }
 
@@ -292,9 +294,10 @@ AST_Node *create_AST_Program_Node(AST_Node *first_stmnt)
     return node;
 }
 
-AST_Node *create_AST_Stmnt_Node(AST_Node *next_stmnt)
+AST_Node *create_AST_Stmnt_Node(AST_Node *expand, AST_Node *next_stmnt)
 {
     AST_Node *node = create_ast_node(AST_NODE_TYPE_STMNT);
+    node->expand = expand;
     node->next_stmnt = next_stmnt;
     return node;
 }
@@ -353,25 +356,26 @@ AST_Node *create_AST_Param_Node(AST_Node *ident, AST_Node *next_param)
     return node;
 }
 
-AST_Node *create_AST_Expr_Node(AST_Node *left_side, AST_Node *right_side)
+AST_Node *create_AST_Expr_Node(AST_Node *expand)
 {
     AST_Node *node = create_ast_node(AST_NODE_TYPE_EXPR);
-    node->left_side = left_side;
-    node->right_side = right_side;
+    node->expand = expand;
     return node;
 }
 
-AST_Node *create_AST_LSide_Node(AST_Node *expand)
+AST_Node *create_AST_LSide_Node(AST_Node *expand, AST_Node *operator)
 {
     AST_Node *node = create_ast_node(AST_NODE_TYPE_LSIDE);
     node->expand = expand;
+    node->operator = operator;
     return node;
 }
 
-AST_Node *create_AST_RSide_Node(AST_Node *expand)
+AST_Node *create_AST_RSide_Node(AST_Node *operator, AST_Node *operand)
 {
     AST_Node *node = create_ast_node(AST_NODE_TYPE_RSIDE);
-    node->expand = expand;
+    node->operator = operator;
+    node->operand = operand;
     return node;
 }
 
@@ -398,21 +402,225 @@ AST_Node *create_AST_Conj_Node(AST_Node *left_side, AST_Node *right_side)
     return node;
 }
 
-AST_Node *create_AST_Ident_Node(AST_Node *name)
+AST_Node *create_AST_Ident_Node(char *name)
 {
     AST_Node *node = create_ast_node(AST_NODE_TYPE_IDENT);
-    node->name = name;
+    strcpy(node->name, name);
     return node;
 }
 
-AST_Node *create_AST_Bit_Node(AST_Node *value)
+AST_Node *create_AST_Bit_Node(int value)
 {
     AST_Node *node = create_ast_node(AST_NODE_TYPE_BIT);
     node->value = value;
     return node;
 }
 
+AST_Node *create_AST_Operator_Node(AST_Node_Type type)
+{
+    AST_Node *node = create_ast_node(AST_NODE_TYPE_OPERATOR);
+    node->type = type;
+    return node;
+}
+
+char *ast_node_typename(AST_Node_Type type)
+{
+    switch (type)
+    {
+    case AST_NODE_TYPE_PROGRAM:
+        return "PROGRAM";
+    case AST_NODE_TYPE_STMNT:
+        return "STMNT";
+    case AST_NODE_TYPE_ASSIGN:
+        return "ASSIGN";
+    case AST_NODE_TYPE_IDENT:
+        return "IDENT";
+    case AST_NODE_TYPE_BIT:
+        return "BIT";
+    case AST_NODE_TYPE_EXPR:
+        return "EXPR";
+    case AST_NODE_TYPE_LSIDE:
+        return "LSIDE";
+    case AST_NODE_TYPE_RSIDE:
+        return "RSIDE";
+    case AST_NODE_TYPE_NEG:
+        return "NEG";
+    case AST_NODE_TYPE_DISJ:
+        return "DISJ";
+    case AST_NODE_TYPE_CONJ:
+        return "CONJ";
+    case AST_NODE_TYPE_NOT:
+        return "NOT";
+    case AST_NODE_TYPE_OR:
+        return "OR";
+    case AST_NODE_TYPE_AND:
+        return "AND";
+    case AST_NODE_TYPE_FUNCALL:
+        return "FUNCALL";
+    case AST_NODE_TYPE_ARG:
+        return "ARG";
+    case AST_NODE_TYPE_FUNDEF:
+        return "FUNDEF";
+    case AST_NODE_TYPE_PARAM:
+        return "PARAM";
+    case AST_NODE_TYPE_INPUT:
+        return "INPUT";
+    case AST_NODE_TYPE_OUTPUT:
+        return "OUTPUT";
+    case AST_NODE_TYPE_OPERATOR:
+        return "OPERATOR";
+    default:
+        return "UNKNOWN";
+    }
+}
+
+void print_node_type(AST_Node_Type type)
+{
+    puts(ast_node_typename(type));
+}
+
+int n_indent = 0;
+
+void print_ast(AST_Node *root)
+{
+    if (!root) return;
+    for (int i=0; i<n_indent; i++) printf("      ");
+    print_node_type(root->type);
+    n_indent++;
+    print_ast(root->first_stmnt);
+    print_ast(root->next_stmnt);
+    print_ast(root->ident);
+    print_ast(root->expr);
+    print_ast(root->first_arg);
+    print_ast(root->next_arg);
+    print_ast(root->first_param);
+    print_ast(root->next_param);
+    print_ast(root->left_side);
+    print_ast(root->right_side);
+    print_ast(root->operator);
+    print_ast(root->operand);
+    print_ast(root->expand);
+    if (root->value != -1)
+    {
+        for (int i=0; i<n_indent; i++) printf("      ");
+        printf("%d\n", root->value);
+    }
+    if (root->name != NULL)
+    {
+        for (int i=0; i<n_indent; i++) printf("      ");
+        printf("%s\n", root->name);
+    }
+    n_indent--;
+}
+
 void destroy_ast_node(AST_Node *node)
 {
     free(node);
+}
+
+// AST Nodes stack definitions
+
+Stack_ASTN *create_stack_astn()
+{
+    Stack_Node_ASTN *top = (Stack_Node_ASTN *)malloc(sizeof(*top));
+    CHECK_MALLOC(top);
+
+    top->prev = NULL;
+    top->value = NULL;
+
+    Stack_ASTN *stack = (Stack_ASTN *)malloc(sizeof(*stack));
+    CHECK_MALLOC(stack);
+
+    stack->top = top;
+    stack->size = 0;
+
+    return stack;
+}
+
+int destroy_stack_astn(Stack_ASTN *stack)
+{
+    if (!stack)
+        return 1;
+
+    Stack_Node_ASTN *snode = stack->top;
+    Stack_Node_ASTN *prev_node;
+
+    while (snode != NULL)
+    {
+        prev_node = snode->prev;
+        free(snode);
+        snode = prev_node;
+    }
+
+    return 0;
+}
+
+int push_stack_astn(AST_Node *value, Stack_ASTN *stack)
+{
+    // printf("Pushing node: %s\n", (value != NULL) ? ast_node_typename(value->type) : "NULL");
+    if (!stack)
+        return 1;
+    if (stack->size == 0)
+    {
+        stack->top->value = value;
+        stack->size = 1;
+    }
+    else
+    {
+        Stack_Node_ASTN *new_top = (Stack_Node_ASTN *)malloc(sizeof(*new_top));
+        CHECK_MALLOC_INT(new_top);
+
+        new_top->value = value;
+        new_top->prev = stack->top;
+        stack->top = new_top;
+        stack->size++;
+    }
+
+    return 0;
+}
+
+AST_Node *pop_stack_astn(Stack_ASTN *stack)
+{
+    if (!stack || stack->size == 0)
+        return NULL;
+
+    Stack_Node_ASTN *n = stack->top;
+    AST_Node *rv = n->value;
+
+    if (stack->size == 1)
+    {
+        stack->top->prev = NULL;
+        stack->top->value = 0;
+    }
+    else
+    {
+        stack->top = stack->top->prev;
+        free(n);
+    }
+    stack->size--;
+
+    return rv;
+}
+
+int print_stack_astn(Stack_ASTN *stack)
+{
+    if (!stack)
+        return 1;
+    Stack_Node_ASTN *snode = stack->top;
+    Stack_Node_ASTN *prev_node;
+
+    printf("[ ");
+    for (int i = 0; i < stack->size; i++)
+    {
+        prev_node = snode->prev;
+        if (snode->value)
+            printf("%s ", ast_node_typename(snode->value->type));
+        else
+            printf("NULL ");
+        snode = prev_node;
+    }
+
+    printf("]\n");
+
+    return 0;
 }

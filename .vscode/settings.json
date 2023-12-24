@@ -5,6 +5,8 @@
         "tokens.h": "c",
         "random": "c",
         "iosfwd": "c",
-        "functional": "c"
+        "functional": "c",
+        "stdlib.h": "c",
+        "string.h": "c"
     }
 }

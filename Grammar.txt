@@ -38,5 +38,5 @@ PARAMS  -> ident PARAMS'
 PARAMS' -> , ident PARAMS'
          | e
 
-IO      -> input EXPR
+IO      -> input ident
          | output EXPR
