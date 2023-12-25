@@ -33,6 +33,13 @@
     }
 
 #define INITIALIZE_INPUT_FILE yyin = open_file(filename, "r");
+#define MAX_IDENT_SIZE 25
+
+typedef struct token_pair_t
+{
+    TOKEN value;
+    char text[MAX_IDENT_SIZE];
+} Token_Pair_t;
 
 typedef struct stack_node_s_t
 {
@@ -98,7 +105,7 @@ typedef struct AST_Node_t
     struct AST_Node_t *operator;        // for left & right side nodes
     struct AST_Node_t *operand;         // for left & right side nodes
     struct AST_Node_t *expand;
-    char name[10];                      // for identifier node
+    char name[MAX_IDENT_SIZE];                      // for identifier node
     int value;                          // for bit node
 } AST_Node;
 

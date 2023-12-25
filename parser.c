@@ -4,16 +4,19 @@ int debug = 0;
 
 void seekback_token()
 {
-    yylex_destroy();
-    INITIALIZE_INPUT_FILE
-    for (int i = 0; i < token_pos; i++)
-        token = yylex();
+    if (token_ptr->prev)
+        token_ptr = token_ptr->prev;
+    token = ((Token_Pair_t *)token_ptr->value)->value;
+    yytext = ((Token_Pair_t *)token_ptr->value)->text;
     token_pos--;
 }
 
 void advance_token()
 {
-    token = yylex();
+    if (token_ptr->next)
+        token_ptr = token_ptr->next;
+    token = ((Token_Pair_t *)token_ptr->value)->value;
+    yytext = ((Token_Pair_t *)token_ptr->value)->text;
     token_pos++;
 }
 

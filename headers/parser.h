@@ -20,6 +20,7 @@ TOKEN perform_lookahead();
 
 extern TOKEN token;
 extern int token_pos, blank_source;
+extern List_Node_t *token_ptr;
 extern char *filename;
 extern Stack_t *AST_Stack;
 
