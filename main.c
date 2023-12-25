@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
     ast_root_node = pop_stack(AST_Stack);
     destroy_stack(AST_Stack);
 
+    
     // print_ast(ast_root_node);
 
     return 0;
