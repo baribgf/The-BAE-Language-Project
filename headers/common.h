@@ -102,17 +102,17 @@ typedef struct AST_Node_t
     int value;                          // for bit node
 } AST_Node;
 
-typedef struct stack_node_astn_t
+typedef struct stack_node_t
 {
-    AST_Node *value;
-    struct stack_node_astn_t *prev;
-} Stack_Node_ASTN;
+    void *value;
+    struct stack_node_t *prev;
+} Stack_Node_t;
 
 typedef struct
 {
-    Stack_Node_ASTN *top;
+    Stack_Node_t *top;
     int size;
-} Stack_ASTN;
+} Stack_t;
 
 AST_Node *create_ast_node(AST_Node_Type type);
 AST_Node *create_AST_Program_Node(AST_Node *first_stmnt);
@@ -158,10 +158,10 @@ int push_stack_i(int value, Stack_I *stack);
 int pop_stack_i(Stack_I *stack);
 int print_stack_i(Stack_I *stack);
 
-Stack_ASTN *create_stack_astn();
-int destroy_stack_astn(Stack_ASTN *stack);
-int push_stack_astn(AST_Node *value, Stack_ASTN *stack);
-AST_Node *pop_stack_astn(Stack_ASTN *stack);
-int print_stack_astn(Stack_ASTN *stack);
+Stack_t *create_stack();
+int destroy_stack(Stack_t *stack);
+int push_stack(AST_Node *value, Stack_t *stack);
+AST_Node *pop_stack(Stack_t *stack);
+int print_ast_stack(Stack_t *stack);
 
 #endif // HELPER_H

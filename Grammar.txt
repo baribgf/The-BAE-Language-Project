@@ -1,18 +1,19 @@
 PROGRAM -> STMNT PROGRAM
          | newline PROGRAM
          | EOF
-         | e
 
 STMNT    -> ASSIGN
          | FUNCALL
          | IO
 
-ASSIGN  -> ident = EXPR
+ASSIGN  -> ident = ASSIGN'
+
+ASSIGN' -> EXPR
+         | FUNDEF
 
 EXPR    -> EXPR' EXPR''
 
-EXPR'   -> FUNDEF
-         | FUNCALL
+EXPR'   -> FUNCALL
          | ( EXPR )
          | not EXPR'
          | ident
@@ -30,13 +31,17 @@ ARGS    -> EXPR ARGS'
 ARGS'   -> , EXPR ARGS'
          | e
 
-FUNDEF  -> < PARAMS > { PROGRAM }
+FUNDEF  -> < PARAMS > { INNER_PROG }
 
 PARAMS  -> ident PARAMS'
          | e
 
 PARAMS' -> , ident PARAMS'
          | e
+
+INNER_PROG -> STMNT INNER_PROG
+            | newline INNER_PROG
+            | e
 
 IO      -> input ident
          | output EXPR

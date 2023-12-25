@@ -3,11 +3,12 @@
 #include "headers/tokens.h"
 
 char *filename;
-int token_pos, token_count, proc, blank_source;
+int token_pos, token_count, proc = 0, blank_source;
 TOKEN token;
-Stack_S *RDStack;
+Stack_S *RDStack;               // Recursive Descent Stack for Debugging !
 Stack_I *State_Stack;
-Stack_ASTN *AST_Stack;
+Stack_t *AST_Stack;
+AST_Node *ast_root_node;
 
 int main(int argc, char *argv[])
 {
@@ -16,71 +17,57 @@ int main(int argc, char *argv[])
     filename = argv[1];
     INITIALIZE_INPUT_FILE
 
+    // Lexical Analysis Phase ///////////////////////////////////////
     token_count = 1;
     while ((token = yylex()) != TOKEN_EOF)
     {
         if (token == TOKEN_ERROR)
         {
             fprintf(stderr, "Undefined token: '%s'\n", yytext);
-            _exit(1);
+            exit(1);
         }
 
         token_count++;
-
         // if (token == TOKEN_NEWLINE) yytext = "\\n";
+        // else if (token == TOKEN_EOF) yytext = "EOF";
         // printf("TOKEN: %d -> '%s'\n", token, yytext);
     }
 
-    puts("> Lexical Analysis completed with success.");
+    puts("[>] Lexical Analysis completed with success.");
 
     yylex_destroy();
     INITIALIZE_INPUT_FILE
+
+    // Parsing Phase ////////////////////////////////////////////////
     token = yylex();
     token_pos = 0;
     RDStack = create_stack_s();
     State_Stack = create_stack_i();
-    AST_Stack = create_stack_astn();
-
-    TOKEN lat = perform_lookahead();
-    blank_source = (lat == TOKEN_EOF) ? 1 : 0; // Must first erase all leading whitespaces !
-
+    AST_Stack = create_stack();
     int state = Program();
-
-    AST_Node *root_node = pop_stack_astn(AST_Stack);
-    print_ast(root_node);
-
-    if (!blank_source)
-    {
-        Stack_Node_I *node = State_Stack->top;
-        while (node)
-        {
-            if (node->value == 0)
-            {
-                state = 0;
-                break;
-            }
-            node = node->prev;
-        }
-    }
 
     destroy_stack_s(RDStack);
     destroy_stack_i(State_Stack);
 
     if (token_pos >= token_count && state)
     {
-        puts("> Parsing completed with success.");
+        puts("[>] Parsing completed with success.");
     }
     else if (token_pos < token_count)
     {
-        puts("* Parsing did not complete.");
-        printf("token_pos = %d, token_count = %d\n", token_pos, token_count);
+        puts("[!] Parsing did not complete.");
         return 1;
     }
     else
     {
-        puts("* Parsing completed without success.");
+        puts("[!] Parsing completed without success (Something went wrong).");
         return 1;
     }
+
+    ast_root_node = pop_stack(AST_Stack);
+    destroy_stack(AST_Stack);
+
+    // print_ast(ast_root_node);
 
     return 0;
 }

@@ -262,6 +262,90 @@ int print_stack_i(Stack_I *stack)
     return 0;
 }
 
+// Standard stack definitions
+
+Stack_t *create_stack()
+{
+    Stack_Node_t *top = (Stack_Node_t *)malloc(sizeof(*top));
+    CHECK_MALLOC(top);
+
+    top->prev = NULL;
+    top->value = NULL;
+
+    Stack_t *stack = (Stack_t *)malloc(sizeof(*stack));
+    CHECK_MALLOC(stack);
+
+    stack->top = top;
+    stack->size = 0;
+
+    return stack;
+}
+
+int destroy_stack(Stack_t *stack)
+{
+    if (!stack)
+        return 1;
+
+    Stack_Node_t *snode = stack->top;
+    Stack_Node_t *prev_node;
+
+    while (snode != NULL)
+    {
+        prev_node = snode->prev;
+        free(snode);
+        snode = prev_node;
+    }
+
+    return 0;
+}
+
+int push_stack(AST_Node *value, Stack_t *stack)
+{
+    if (!stack)
+        return 1;
+        
+    if (stack->size == 0)
+    {
+        stack->top->value = value;
+        stack->size = 1;
+    }
+    else
+    {
+        Stack_Node_t *new_top = (Stack_Node_t *)malloc(sizeof(*new_top));
+        CHECK_MALLOC_INT(new_top);
+
+        new_top->value = value;
+        new_top->prev = stack->top;
+        stack->top = new_top;
+        stack->size++;
+    }
+
+    return 0;
+}
+
+AST_Node *pop_stack(Stack_t *stack)
+{
+    if (!stack || stack->size == 0)
+        return NULL;
+
+    Stack_Node_t *n = stack->top;
+    AST_Node *rv = n->value;
+
+    if (stack->size == 1)
+    {
+        stack->top->prev = NULL;
+        stack->top->value = 0;
+    }
+    else
+    {
+        stack->top = stack->top->prev;
+        free(n);
+    }
+    stack->size--;
+
+    return rv;
+}
+
 // AST definitions
 
 AST_Node *create_ast_node(AST_Node_Type type)
@@ -487,19 +571,19 @@ void print_ast(AST_Node *root)
     for (int i=0; i<n_indent; i++) printf("      ");
     print_node_type(root->type);
     n_indent++;
-    print_ast(root->first_stmnt);
-    print_ast(root->next_stmnt);
-    print_ast(root->ident);
-    print_ast(root->expr);
+    print_ast(root->expand);
     print_ast(root->first_arg);
     print_ast(root->next_arg);
+    print_ast(root->ident);
     print_ast(root->first_param);
     print_ast(root->next_param);
+    print_ast(root->first_stmnt);
+    print_ast(root->next_stmnt);
+    print_ast(root->expr);
     print_ast(root->left_side);
     print_ast(root->right_side);
     print_ast(root->operator);
     print_ast(root->operand);
-    print_ast(root->expand);
     if (root->value != -1)
     {
         for (int i=0; i<n_indent; i++) printf("      ");
@@ -520,101 +604,19 @@ void destroy_ast_node(AST_Node *node)
 
 // AST Nodes stack definitions
 
-Stack_ASTN *create_stack_astn()
-{
-    Stack_Node_ASTN *top = (Stack_Node_ASTN *)malloc(sizeof(*top));
-    CHECK_MALLOC(top);
-
-    top->prev = NULL;
-    top->value = NULL;
-
-    Stack_ASTN *stack = (Stack_ASTN *)malloc(sizeof(*stack));
-    CHECK_MALLOC(stack);
-
-    stack->top = top;
-    stack->size = 0;
-
-    return stack;
-}
-
-int destroy_stack_astn(Stack_ASTN *stack)
+int print_ast_stack(Stack_t *stack)
 {
     if (!stack)
         return 1;
-
-    Stack_Node_ASTN *snode = stack->top;
-    Stack_Node_ASTN *prev_node;
-
-    while (snode != NULL)
-    {
-        prev_node = snode->prev;
-        free(snode);
-        snode = prev_node;
-    }
-
-    return 0;
-}
-
-int push_stack_astn(AST_Node *value, Stack_ASTN *stack)
-{
-    // printf("Pushing node: %s\n", (value != NULL) ? ast_node_typename(value->type) : "NULL");
-    if (!stack)
-        return 1;
-    if (stack->size == 0)
-    {
-        stack->top->value = value;
-        stack->size = 1;
-    }
-    else
-    {
-        Stack_Node_ASTN *new_top = (Stack_Node_ASTN *)malloc(sizeof(*new_top));
-        CHECK_MALLOC_INT(new_top);
-
-        new_top->value = value;
-        new_top->prev = stack->top;
-        stack->top = new_top;
-        stack->size++;
-    }
-
-    return 0;
-}
-
-AST_Node *pop_stack_astn(Stack_ASTN *stack)
-{
-    if (!stack || stack->size == 0)
-        return NULL;
-
-    Stack_Node_ASTN *n = stack->top;
-    AST_Node *rv = n->value;
-
-    if (stack->size == 1)
-    {
-        stack->top->prev = NULL;
-        stack->top->value = 0;
-    }
-    else
-    {
-        stack->top = stack->top->prev;
-        free(n);
-    }
-    stack->size--;
-
-    return rv;
-}
-
-int print_stack_astn(Stack_ASTN *stack)
-{
-    if (!stack)
-        return 1;
-    Stack_Node_ASTN *snode = stack->top;
-    Stack_Node_ASTN *prev_node;
+    Stack_Node_t *snode = stack->top;
+    Stack_Node_t *prev_node;
 
     printf("[ ");
     for (int i = 0; i < stack->size; i++)
     {
         prev_node = snode->prev;
         if (snode->value)
-            printf("%s ", ast_node_typename(snode->value->type));
+            printf("%s ", ast_node_typename(((AST_Node *)snode->value)->type));
         else
             printf("NULL ");
         snode = prev_node;
