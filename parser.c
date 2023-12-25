@@ -157,8 +157,6 @@ int InnerProgram()
             }
         }
     }
-
-    push_stack_i(proc, State_Stack);
     
     DebugPostDerive("InnerProgram")
     return proc;
@@ -411,14 +409,8 @@ int Assign_Prime()
 {
     DebugPreDerive("Assign'")
     int n_match = token_pos;
-    proc = Expr()
-         || Fundef();
+    proc = Expr() || Fundef();
     if (!proc) while (token_pos > n_match) seekback_token();
-    if (proc)
-    {
-        AST_Node *extend = pop_stack(AST_Stack);
-        push_stack(create_AST_Expr_Node(extend), AST_Stack);
-    }
     DebugPostDerive("Assign'")
     return proc;
 }
@@ -481,8 +473,6 @@ int Program()
 
             push_stack(create_AST_Program_Node(first_stmnt), AST_Stack);
         }
-
-        push_stack_i(Stmnt_State, State_Stack);
     }
     else
     {

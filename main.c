@@ -3,10 +3,10 @@
 #include "headers/tokens.h"
 
 char *filename;
-int token_pos, token_count, proc = 0, blank_source;
+int token_pos, proc;
 TOKEN token;
+List_t *Tokens_List;
 Stack_S *RDStack;               // Recursive Descent Stack for Debugging !
-Stack_I *State_Stack;
 Stack_t *AST_Stack;
 AST_Node *ast_root_node;
 
@@ -16,9 +16,8 @@ int main(int argc, char *argv[])
 
     filename = argv[1];
     INITIALIZE_INPUT_FILE
-
     // Lexical Analysis Phase ///////////////////////////////////////
-    token_count = 1;
+    Tokens_List = create_list();
     while ((token = yylex()) != TOKEN_EOF)
     {
         if (token == TOKEN_ERROR)
@@ -27,12 +26,15 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-        token_count++;
+        int *token_ptr = (int *)malloc(sizeof(int));
+        *token_ptr = token;
+        add_list(token_ptr, Tokens_List);
+
         // if (token == TOKEN_NEWLINE) yytext = "\\n";
         // else if (token == TOKEN_EOF) yytext = "EOF";
         // printf("TOKEN: %d -> '%s'\n", token, yytext);
     }
-
+    
     puts("[>] Lexical Analysis completed with success.");
 
     yylex_destroy();
@@ -42,33 +44,26 @@ int main(int argc, char *argv[])
     token = yylex();
     token_pos = 0;
     RDStack = create_stack_s();
-    State_Stack = create_stack_i();
     AST_Stack = create_stack();
     int state = Program();
-
     destroy_stack_s(RDStack);
-    destroy_stack_i(State_Stack);
 
-    if (token_pos >= token_count && state)
+    if (state)
     {
         puts("[>] Parsing completed with success.");
     }
-    else if (token_pos < token_count)
-    {
-        puts("[!] Parsing did not complete.");
-        return 1;
-    }
     else
     {
-        puts("[!] Parsing completed without success (Something went wrong).");
+        puts("[!] Parsing did not complete.");
         return 1;
     }
 
     ast_root_node = pop_stack(AST_Stack);
     destroy_stack(AST_Stack);
 
-    
+    // Program Interpretation Phase /////////////////////////////////
     // print_ast(ast_root_node);
+
 
     return 0;
 }

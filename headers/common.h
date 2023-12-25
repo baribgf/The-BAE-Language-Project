@@ -114,6 +114,20 @@ typedef struct
     int size;
 } Stack_t;
 
+typedef struct list_node_t
+{
+    void *value;
+    struct list_node_t *prev;
+    struct list_node_t *next;
+} List_Node_t;
+
+typedef struct list_t
+{
+    List_Node_t *head;
+    List_Node_t *tail;
+    int size;
+} List_t;
+
 AST_Node *create_ast_node(AST_Node_Type type);
 AST_Node *create_AST_Program_Node(AST_Node *first_stmnt);
 AST_Node *create_AST_Stmnt_Node(AST_Node *expand, AST_Node *next_stmnt);
@@ -141,7 +155,6 @@ extern int yylex();
 extern char *yytext;
 extern int yylex_destroy(void);
 extern Stack_S *RDStack;
-extern Stack_I *State_Stack;
 
 char *token_name(TOKEN t);
 FILE *open_file(const char *filename, char *mode);
@@ -160,8 +173,13 @@ int print_stack_i(Stack_I *stack);
 
 Stack_t *create_stack();
 int destroy_stack(Stack_t *stack);
-int push_stack(AST_Node *value, Stack_t *stack);
-AST_Node *pop_stack(Stack_t *stack);
+int push_stack(void *value, Stack_t *stack);
+void *pop_stack(Stack_t *stack);
 int print_ast_stack(Stack_t *stack);
+
+List_t *create_list();
+int add_list(void *ptr, List_t *list);
+int destroy_list(List_t *list);
+void print_list_i(List_t *list);
 
 #endif // HELPER_H

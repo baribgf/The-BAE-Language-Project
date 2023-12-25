@@ -299,7 +299,7 @@ int destroy_stack(Stack_t *stack)
     return 0;
 }
 
-int push_stack(AST_Node *value, Stack_t *stack)
+int push_stack(void *value, Stack_t *stack)
 {
     if (!stack)
         return 1;
@@ -323,13 +323,13 @@ int push_stack(AST_Node *value, Stack_t *stack)
     return 0;
 }
 
-AST_Node *pop_stack(Stack_t *stack)
+void *pop_stack(Stack_t *stack)
 {
     if (!stack || stack->size == 0)
         return NULL;
 
     Stack_Node_t *n = stack->top;
-    AST_Node *rv = n->value;
+    void *rv = n->value;
 
     if (stack->size == 1)
     {
@@ -344,6 +344,83 @@ AST_Node *pop_stack(Stack_t *stack)
     stack->size--;
 
     return rv;
+}
+
+// Standard linked list definitions
+
+List_t *create_list()
+{
+    List_Node_t *head = (List_Node_t *)malloc(sizeof(List_Node_t));
+    List_Node_t *tail = (List_Node_t *)malloc(sizeof(List_Node_t));
+    CHECK_MALLOC(head)
+    CHECK_MALLOC(tail)
+    head->next = NULL;
+    head->prev = NULL;
+    head->value = NULL;
+    tail->next = NULL;
+    tail->prev = NULL;
+    tail->value = NULL;
+    List_t *list = (List_t *)malloc(sizeof(List_t));
+    CHECK_MALLOC(list)
+    list->head = head;
+    list->tail = tail;
+    list->size = 0;
+    return list;
+}
+
+int add_list(void *ptr, List_t *list)
+{
+    if (!list)
+        return 1;
+
+    if (list->size > 0)
+    {
+        List_Node_t *head = (List_Node_t *)malloc(sizeof(List_Node_t));
+        CHECK_MALLOC_INT(head)
+        head->value = ptr;
+        head->next = NULL;
+        head->prev = list->head;
+        list->head->next = head;
+        list->head = head;
+        if (list->size == 1)
+            list->tail->next = list->head;
+    }
+    else
+    {
+        list->head->value = ptr;
+        list->tail->value = ptr;
+    }
+    list->size++;
+    return 0;
+}
+
+int destroy_list(List_t *list)
+{
+    if (!list) return 1;
+    List_Node_t *node = list->head;
+    List_Node_t *next_node;
+    while (node)
+    {
+        next_node = node->prev;
+        free(node);
+        node = next_node;
+    }
+    return 0;
+}
+
+void print_list_i(List_t *list)
+{
+    List_Node_t *node = list->tail;
+    printf("[ ");
+    while (node)
+    {
+        printf("%d", *((int *)node->value));
+        if (node->next)
+            printf(",");
+        printf(" ");
+        node = node->next;
+    }
+    printf("]\n");
 }
 
 // AST definitions
@@ -571,15 +648,15 @@ void print_ast(AST_Node *root)
     for (int i=0; i<n_indent; i++) printf("      ");
     print_node_type(root->type);
     n_indent++;
+    print_ast(root->ident);
     print_ast(root->expand);
+    print_ast(root->expr);
     print_ast(root->first_arg);
     print_ast(root->next_arg);
-    print_ast(root->ident);
     print_ast(root->first_param);
     print_ast(root->next_param);
     print_ast(root->first_stmnt);
     print_ast(root->next_stmnt);
-    print_ast(root->expr);
     print_ast(root->left_side);
     print_ast(root->right_side);
     print_ast(root->operator);
