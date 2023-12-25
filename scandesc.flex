@@ -1,5 +1,5 @@
 %{
-#include "headers/tokens.h"
+#include "../headers/tokens.h"
 %}
 
 %%

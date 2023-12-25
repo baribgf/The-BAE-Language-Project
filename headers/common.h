@@ -11,6 +11,10 @@
 #include "tokens.h"
 #endif
 
+#ifndef _STRMAP_H_
+#include "strmap.h"
+#endif
+
 #define CHECK_INPUT_FILE                         \
     if (argc < 2)                                \
     {                                            \

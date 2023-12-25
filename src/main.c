@@ -1,6 +1,6 @@
-#include "headers/parser.h"
-#include "headers/common.h"
-#include "headers/tokens.h"
+#include "../headers/parser.h"
+#include "../headers/common.h"
+#include "../headers/tokens.h"
 
 char *filename;
 int token_pos, proc;

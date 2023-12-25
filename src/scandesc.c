@@ -1,6 +1,6 @@
-#line 2 "scandesc.c"
+#line 2 "src/scandesc.c"
 
-#line 4 "scandesc.c"
+#line 4 "src/scandesc.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -454,9 +454,9 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "scandesc.flex"
 #line 2 "scandesc.flex"
-#include "headers/tokens.h"
-#line 459 "scandesc.c"
-#line 460 "scandesc.c"
+#include "../headers/tokens.h"
+#line 459 "src/scandesc.c"
+#line 460 "src/scandesc.c"
 
 #define INITIAL 0
 
@@ -675,7 +675,7 @@ YY_DECL
 	{
 #line 5 "scandesc.flex"
 
-#line 679 "scandesc.c"
+#line 679 "src/scandesc.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -833,7 +833,7 @@ YY_RULE_SETUP
 #line 25 "scandesc.flex"
 ECHO;
 	YY_BREAK
-#line 837 "scandesc.c"
+#line 837 "src/scandesc.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

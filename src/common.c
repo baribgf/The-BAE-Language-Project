@@ -1,4 +1,4 @@
-#include "headers/common.h"
+#include "../headers/common.h"
 
 FILE *open_file(const char *filename, char *mode)
 {

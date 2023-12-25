@@ -6,7 +6,7 @@
         {
             "label": "Build & Run",
             "type": "shell",
-            "command": "gcc *.c -o ./bin/main -lfl && ./bin/main ./Example.txt",
+            "command": "gcc src/*.c -o bin/main -lfl && bin/main Example.txt",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -16,7 +16,7 @@
         {
             "label": "Build Lexical Analyzer",
             "type": "shell",
-            "command": "flex -o scandesc.c scandesc.flex",
+            "command": "flex -o src/scandesc.c scandesc.flex",
             "problemMatcher": []
         }
     ]

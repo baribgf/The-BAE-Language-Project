@@ -35,7 +35,7 @@
  *    along with strmap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "headers/strmap.h"
+#include "../headers/strmap.h"
 
 typedef struct
 {

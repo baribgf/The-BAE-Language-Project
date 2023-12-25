@@ -1,7 +1,8 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
-typedef enum {
+typedef enum
+{
     TOKEN_EOF = 0,
     TOKEN_BIT,
     TOKEN_IDENT,

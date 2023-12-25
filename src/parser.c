@@ -1,4 +1,4 @@
-#include "headers/parser.h"
+#include "../headers/parser.h"
 
 int debug = 0;
 
