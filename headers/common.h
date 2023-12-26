@@ -1,6 +1,5 @@
-
-#ifndef HELPER_H
-#define HELPER_H
+#ifndef COMMON_H
+#define COMMON_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,10 +8,6 @@
 
 #ifndef TOKENS_H
 #include "tokens.h"
-#endif
-
-#ifndef _STRMAP_H_
-#include "strmap.h"
 #endif
 
 #define CHECK_INPUT_FILE                         \
@@ -139,6 +134,18 @@ typedef struct list_t
     int size;
 } List_t;
 
+typedef struct map_pair_t
+{
+    char key[MAX_IDENT_SIZE];
+    void *value;
+} Map_Pair_t;
+
+typedef struct map_t
+{
+    int size;
+    List_t *pairs;
+} Map_t;
+
 AST_Node *create_ast_node(AST_Node_Type type);
 AST_Node *create_AST_Program_Node(AST_Node *first_stmnt);
 AST_Node *create_AST_Stmnt_Node(AST_Node *expand, AST_Node *next_stmnt);
@@ -159,6 +166,7 @@ AST_Node *create_AST_Ident_Node(char *name);
 AST_Node *create_AST_Bit_Node(int value);
 AST_Node *create_AST_Operator_Node(AST_Node_Type type);
 void print_ast(AST_Node *root);
+char *ast_node_typename(AST_Node_Type type);
 void destroy_ast_node(AST_Node *node);
 
 extern FILE *yyin;
@@ -170,27 +178,34 @@ extern Stack_S *RDStack;
 char *token_name(TOKEN t);
 FILE *open_file(const char *filename, char *mode);
 
-Stack_S *create_stack_s();
-int destroy_stack_s(Stack_S *stack);
-int push_stack_s(char *value, Stack_S *stack);
-char *pop_stack_s(Stack_S *stack);
+Stack_S *stack_create_s();
+int stack_destroy_s(Stack_S *stack);
+int stack_push_s(char *value, Stack_S *stack);
+char *stack_pop_s(Stack_S *stack);
 int print_stack_s(Stack_S *stack);
 
-Stack_I *create_stack_i();
-int destroy_stack_i(Stack_I *stack);
-int push_stack_i(int value, Stack_I *stack);
-int pop_stack_i(Stack_I *stack);
+Stack_I *stack_create_i();
+int stack_destroy_i(Stack_I *stack);
+int stack_push_i(int value, Stack_I *stack);
+int stack_pop_i(Stack_I *stack);
 int print_stack_i(Stack_I *stack);
 
-Stack_t *create_stack();
-int destroy_stack(Stack_t *stack);
-int push_stack(void *value, Stack_t *stack);
-void *pop_stack(Stack_t *stack);
+Stack_t *stack_create();
+int stack_destroy(Stack_t *stack);
+int stack_push(void *value, Stack_t *stack);
+void *stack_pop(Stack_t *stack);
 int print_ast_stack(Stack_t *stack);
 
-List_t *create_list();
-int add_list(void *ptr, List_t *list);
-int destroy_list(List_t *list);
+List_t *list_create();
+int list_add(void *ptr, List_t *list);
+int list_destroy(List_t *list);
 void print_list_i(List_t *list);
 
-#endif // HELPER_H
+unsigned long hash(const char *str);
+Map_t *map_create();
+int map_add(const char *key, void *value, Map_t *map);
+int map_get(const char *key, void **buff, Map_t *map);
+int map_update(const char *key, void *value, Map_t *map);
+int map_destroy(Map_t *map);
+
+#endif // COMMON_H

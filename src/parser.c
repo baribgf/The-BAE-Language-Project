@@ -74,7 +74,7 @@ int match_terminal(TOKEN curr_token)
                 break;
         }
 
-        push_stack(node, AST_Stack);
+        stack_push(node, AST_Stack);
 
         if (curr_token != TOKEN_EPSILON)
             advance_token();
@@ -96,17 +96,17 @@ int IO()
     {
         if (input)
         {
-            AST_Node *ident = pop_stack(AST_Stack),
-                    *in_op = pop_stack(AST_Stack);
+            AST_Node *ident = stack_pop(AST_Stack),
+                    *in_op = stack_pop(AST_Stack);
 
-            push_stack(create_AST_Input_Node(ident), AST_Stack);
+            stack_push(create_AST_Input_Node(ident), AST_Stack);
         }
         else if (output)
         {
-            AST_Node *expr = pop_stack(AST_Stack),
-                    *out_op = pop_stack(AST_Stack);
+            AST_Node *expr = stack_pop(AST_Stack),
+                    *out_op = stack_pop(AST_Stack);
 
-            push_stack(create_AST_Output_Node(expr), AST_Stack);
+            stack_push(create_AST_Output_Node(expr), AST_Stack);
         }
     }
 
@@ -127,13 +127,13 @@ int InnerProgram()
         {
             if (Stmnt_State)
             {
-                AST_Node *program = pop_stack(AST_Stack),
-                        *first_stmnt = pop_stack(AST_Stack);
+                AST_Node *program = stack_pop(AST_Stack),
+                        *first_stmnt = stack_pop(AST_Stack);
             
                 if (program)
                     first_stmnt->next_stmnt = program->first_stmnt;
 
-                push_stack(create_AST_Program_Node(first_stmnt), AST_Stack);
+                stack_push(create_AST_Program_Node(first_stmnt), AST_Stack);
             }
         }
     }
@@ -146,17 +146,17 @@ int InnerProgram()
         if (match_eps) while (token_pos > n_match) seekback_token();
         if (match_eps)
         {
-            pop_stack(AST_Stack);
-            push_stack(create_AST_Program_Node(NULL), AST_Stack);
+            stack_pop(AST_Stack);
+            stack_push(create_AST_Program_Node(NULL), AST_Stack);
         }
         else
         {
             if (newl_prog)
             {
-                AST_Node *program = pop_stack(AST_Stack),
-                         *newl = pop_stack(AST_Stack);
+                AST_Node *program = stack_pop(AST_Stack),
+                         *newl = stack_pop(AST_Stack);
                 if (program)
-                    push_stack(create_AST_Program_Node(program->first_stmnt), AST_Stack);
+                    stack_push(create_AST_Program_Node(program->first_stmnt), AST_Stack);
             }
         }
     }
@@ -175,16 +175,16 @@ int Params_Prime()
     if (match_eps) while (token_pos > n_match) seekback_token();
     if (match_eps)
     {
-        pop_stack(AST_Stack);
-        push_stack(create_AST_Param_Node(NULL, NULL), AST_Stack);
+        stack_pop(AST_Stack);
+        stack_push(create_AST_Param_Node(NULL, NULL), AST_Stack);
     }
     else
     {
-        AST_Node *next_param = pop_stack(AST_Stack),
-                 *ident = pop_stack(AST_Stack),
-                 *comma = pop_stack(AST_Stack);
+        AST_Node *next_param = stack_pop(AST_Stack),
+                 *ident = stack_pop(AST_Stack),
+                 *comma = stack_pop(AST_Stack);
 
-        push_stack(create_AST_Param_Node(ident, next_param), AST_Stack);
+        stack_push(create_AST_Param_Node(ident, next_param), AST_Stack);
     }
     DebugPostDerive("Params'")
     return proc;
@@ -200,15 +200,15 @@ int Params()
     if (match_eps) while (token_pos > n_match) seekback_token();
     if (match_eps)
     {
-        pop_stack(AST_Stack);
-        push_stack(create_AST_Param_Node(NULL, NULL), AST_Stack);
+        stack_pop(AST_Stack);
+        stack_push(create_AST_Param_Node(NULL, NULL), AST_Stack);
     }
     else
     {
-        AST_Node *next_param = pop_stack(AST_Stack),
-                 *ident = pop_stack(AST_Stack);
+        AST_Node *next_param = stack_pop(AST_Stack),
+                 *ident = stack_pop(AST_Stack);
 
-        push_stack(create_AST_Param_Node(ident, next_param), AST_Stack);
+        stack_push(create_AST_Param_Node(ident, next_param), AST_Stack);
     }
     DebugPostDerive("Params")
     return proc;
@@ -227,14 +227,14 @@ int Fundef()
     if (!proc) while (token_pos > n_match) seekback_token();
     else
     {
-        AST_Node *close_brace = pop_stack(AST_Stack),
-                 *first_stmnt = pop_stack(AST_Stack),
-                 *open_brace = pop_stack(AST_Stack),
-                 *close_tag = pop_stack(AST_Stack),
-                 *first_param = pop_stack(AST_Stack),
-                 *open_tag = pop_stack(AST_Stack);
+        AST_Node *close_brace = stack_pop(AST_Stack),
+                 *first_stmnt = stack_pop(AST_Stack),
+                 *open_brace = stack_pop(AST_Stack),
+                 *close_tag = stack_pop(AST_Stack),
+                 *first_param = stack_pop(AST_Stack),
+                 *open_tag = stack_pop(AST_Stack);
 
-        push_stack(create_AST_Fundef_Node(first_param, first_stmnt), AST_Stack);
+        stack_push(create_AST_Fundef_Node(first_param, first_stmnt), AST_Stack);
     }
     DebugPostDerive("Fundef")
     return proc;
@@ -252,16 +252,16 @@ int Args_Prime()
     if (match_eps) while (token_pos > n_match) seekback_token();
     if (match_eps)
     {
-        pop_stack(AST_Stack);
-        push_stack(create_AST_Arg_Node(NULL, NULL), AST_Stack);
+        stack_pop(AST_Stack);
+        stack_push(create_AST_Arg_Node(NULL, NULL), AST_Stack);
     }
     else
     {
-        AST_Node *next_arg = pop_stack(AST_Stack),
-                 *expr = pop_stack(AST_Stack),
-                 *comma = pop_stack(AST_Stack);
+        AST_Node *next_arg = stack_pop(AST_Stack),
+                 *expr = stack_pop(AST_Stack),
+                 *comma = stack_pop(AST_Stack);
 
-        push_stack(create_AST_Arg_Node(expr, next_arg), AST_Stack);
+        stack_push(create_AST_Arg_Node(expr, next_arg), AST_Stack);
     }
     DebugPostDerive("Args'")
     return proc;
@@ -277,15 +277,15 @@ int Args()
     if (match_eps) while (token_pos > n_match) seekback_token();
     if (match_eps)
     {
-        pop_stack(AST_Stack);
-        push_stack(create_AST_Arg_Node(NULL, NULL), AST_Stack);
+        stack_pop(AST_Stack);
+        stack_push(create_AST_Arg_Node(NULL, NULL), AST_Stack);
     }
     else
     {
-        AST_Node *next_arg = pop_stack(AST_Stack),
-                 *expr = pop_stack(AST_Stack);
+        AST_Node *next_arg = stack_pop(AST_Stack),
+                 *expr = stack_pop(AST_Stack);
 
-        push_stack(create_AST_Arg_Node(expr, next_arg), AST_Stack);
+        stack_push(create_AST_Arg_Node(expr, next_arg), AST_Stack);
     }
     DebugPostDerive("Args")
     return proc;
@@ -302,12 +302,12 @@ int Funcall()
     if (!proc) while (token_pos > n_match) seekback_token();
     else
     {
-        AST_Node *close_par = pop_stack(AST_Stack),
-                 *first_arg = pop_stack(AST_Stack),
-                 *open_par = pop_stack(AST_Stack),
-                 *ident = pop_stack(AST_Stack);
+        AST_Node *close_par = stack_pop(AST_Stack),
+                 *first_arg = stack_pop(AST_Stack),
+                 *open_par = stack_pop(AST_Stack),
+                 *ident = stack_pop(AST_Stack);
 
-        push_stack(create_AST_Funcall_Node(ident, first_arg), AST_Stack);
+        stack_push(create_AST_Funcall_Node(ident, first_arg), AST_Stack);
     }
     DebugPostDerive("Funcall")
     return proc;
@@ -327,14 +327,14 @@ int Expr_Prime_2()
     if (match_eps) while (token_pos > n_match) seekback_token();
     if (match_eps)
     {
-        pop_stack(AST_Stack);
-        push_stack(create_AST_RSide_Node(NULL, NULL), AST_Stack);
+        stack_pop(AST_Stack);
+        stack_push(create_AST_RSide_Node(NULL, NULL), AST_Stack);
     }
     else
     {
-        AST_Node *operand = pop_stack(AST_Stack),
-                 *operator = pop_stack(AST_Stack);
-        push_stack(create_AST_RSide_Node(operator, operand), AST_Stack);
+        AST_Node *operand = stack_pop(AST_Stack),
+                 *operator = stack_pop(AST_Stack);
+        stack_push(create_AST_RSide_Node(operator, operand), AST_Stack);
     }
     DebugPostDerive("Expr''")
     return proc;
@@ -357,22 +357,22 @@ int Expr_Prime()
     {
         if (expr_par)
         {
-            AST_Node *close_par = pop_stack(AST_Stack),
-                     *expr = pop_stack(AST_Stack),
-                     *open_par = pop_stack(AST_Stack);
+            AST_Node *close_par = stack_pop(AST_Stack),
+                     *expr = stack_pop(AST_Stack),
+                     *open_par = stack_pop(AST_Stack);
 
-            push_stack(expr, AST_Stack);
+            stack_push(expr, AST_Stack);
         }
         else if (neg)
         {
-            AST_Node *expr = pop_stack(AST_Stack),
-                     *neg_op = pop_stack(AST_Stack);
+            AST_Node *expr = stack_pop(AST_Stack),
+                     *neg_op = stack_pop(AST_Stack);
 
-            push_stack(create_AST_Neg_Node(expr), AST_Stack);
+            stack_push(create_AST_Neg_Node(expr), AST_Stack);
         }
         // else if (funcall)
         // {
-        //     AST_Node *funcll = pop_stack(AST_Stack);
+        //     AST_Node *funcll = stack_pop(AST_Stack);
         // }
     }
     DebugPostDerive("Expr'")
@@ -387,20 +387,20 @@ int Expr()
     if (!proc) while (token_pos > n_match) seekback_token();
     else
     {
-        AST_Node *rside = pop_stack(AST_Stack),
-                 *lside = pop_stack(AST_Stack);
+        AST_Node *rside = stack_pop(AST_Stack),
+                 *lside = stack_pop(AST_Stack);
 
         if (rside->operator == NULL)
-            push_stack(lside, AST_Stack);
+            stack_push(lside, AST_Stack);
         else
         {
             if (rside->operator->type == AST_NODE_TYPE_OR)
             {
-                push_stack(create_AST_Disj_Node(lside, rside->operand), AST_Stack);
+                stack_push(create_AST_Disj_Node(lside, rside->operand), AST_Stack);
             }
             else if (rside->operator->type == AST_NODE_TYPE_AND)
             {
-                push_stack(create_AST_Conj_Node(lside, rside->operand), AST_Stack);
+                stack_push(create_AST_Conj_Node(lside, rside->operand), AST_Stack);
             }
         }
     }
@@ -426,11 +426,11 @@ int Assign()
     if (!proc) while (token_pos > n_match) seekback_token();
     else
     {
-        AST_Node *assign_prime = pop_stack(AST_Stack),
-                 *assign_op = pop_stack(AST_Stack),
-                 *ident = pop_stack(AST_Stack);
+        AST_Node *assign_prime = stack_pop(AST_Stack),
+                 *assign_op = stack_pop(AST_Stack),
+                 *ident = stack_pop(AST_Stack);
 
-        push_stack(create_AST_Assign_Node(ident, assign_prime), AST_Stack);
+        stack_push(create_AST_Assign_Node(ident, assign_prime), AST_Stack);
     }
     DebugPostDerive("Assign")
     return proc;
@@ -449,8 +449,8 @@ int Stmnt()
     if (!proc) while (token_pos > n_match) seekback_token();
     else
     {
-        AST_Node *expand = pop_stack(AST_Stack);
-        push_stack(create_AST_Stmnt_Node(expand, NULL), AST_Stack);
+        AST_Node *expand = stack_pop(AST_Stack);
+        stack_push(create_AST_Stmnt_Node(expand, NULL), AST_Stack);
     }
     DebugPostDerive("Stmnt")
     return proc;
@@ -468,13 +468,13 @@ int Program()
         if (!proc) while (token_pos > n_match) seekback_token();
         if (proc)
         {
-            AST_Node *program = pop_stack(AST_Stack),
-                     *first_stmnt = pop_stack(AST_Stack);
+            AST_Node *program = stack_pop(AST_Stack),
+                     *first_stmnt = stack_pop(AST_Stack);
             
             if (program && first_stmnt)
                 first_stmnt->next_stmnt = program->first_stmnt;
 
-            push_stack(create_AST_Program_Node(first_stmnt), AST_Stack);
+            stack_push(create_AST_Program_Node(first_stmnt), AST_Stack);
         }
     }
     else
@@ -485,18 +485,30 @@ int Program()
 
         if (eof)
         {
-            pop_stack(AST_Stack);  // pop EOF node
-            push_stack(create_AST_Program_Node(NULL), AST_Stack);
+            stack_pop(AST_Stack);  // pop EOF node
+            stack_push(create_AST_Program_Node(NULL), AST_Stack);
         }
         else if (newl_prog)
         {
-            AST_Node *program = pop_stack(AST_Stack),
-                     *newl = pop_stack(AST_Stack);
+            AST_Node *program = stack_pop(AST_Stack),
+                     *newl = stack_pop(AST_Stack);
 
-            push_stack(create_AST_Program_Node(program->first_stmnt), AST_Stack);
+            stack_push(create_AST_Program_Node(program->first_stmnt), AST_Stack);
         }
     }
 
     DebugPostDerive("Program")
     return proc;
+}
+
+int parse(List_t *tokens_list)
+{
+    token_ptr = tokens_list->tail;
+    token = ((Token_Pair_t *)token_ptr->value)->value;
+    yytext = ((Token_Pair_t *)token_ptr->value)->text;
+    token_pos = 0;
+    RDStack = stack_create_s();
+    AST_Stack = stack_create();
+    int state = Program();
+    return state;
 }

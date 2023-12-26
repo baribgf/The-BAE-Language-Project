@@ -1,6 +1,7 @@
-#include "../headers/parser.h"
-#include "../headers/common.h"
 #include "../headers/tokens.h"
+#include "../headers/common.h"
+#include "../headers/parser.h"
+#include "../headers/interpreter.h"
 
 char *filename;
 int token_pos, proc;
@@ -10,6 +11,8 @@ List_t *Tokens_List;
 Stack_S *RDStack;               // Recursive Descent Stack for Debugging !
 Stack_t *AST_Stack;
 AST_Node *ast_root_node;
+void *it_value;
+void *expr_return;
 
 int main(int argc, char *argv[])
 {
@@ -17,8 +20,9 @@ int main(int argc, char *argv[])
 
     filename = argv[1];
     INITIALIZE_INPUT_FILE
+
     // Lexical Analysis Phase ///////////////////////////////////////
-    Tokens_List = create_list();
+    Tokens_List = list_create();
     int last_is_newl = 0;
     do
     {
@@ -43,7 +47,7 @@ int main(int argc, char *argv[])
         Token_Pair_t *token_ptr = (Token_Pair_t *)malloc(sizeof(Token_Pair_t));
         token_ptr->value = token;
         strcpy(token_ptr->text, yytext);
-        add_list(token_ptr, Tokens_List);
+        list_add(token_ptr, Tokens_List);
 
         // if (token == TOKEN_NEWLINE) yytext = "\\n";
         // else if (token == TOKEN_EOF) yytext = "EOF";
@@ -54,15 +58,9 @@ int main(int argc, char *argv[])
     puts("[>] Lexical Analysis completed with success.");
 
     // Parsing Phase ////////////////////////////////////////////////
-    token_ptr = Tokens_List->tail;
-    token = ((Token_Pair_t *)token_ptr->value)->value;
-    yytext = ((Token_Pair_t *)token_ptr->value)->text;
-    token_pos = 0;
-    RDStack = create_stack_s();
-    AST_Stack = create_stack();
-    int state = Program();
-    destroy_stack_s(RDStack);
-    destroy_list(Tokens_List);
+    int state = parse(Tokens_List);
+    stack_destroy_s(RDStack);
+    list_destroy(Tokens_List);
 
     if (state)
     {
@@ -74,11 +72,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ast_root_node = pop_stack(AST_Stack);
-    destroy_stack(AST_Stack);
+    ast_root_node = stack_pop(AST_Stack);
+    stack_destroy(AST_Stack);
 
     // Program Interpretation Phase /////////////////////////////////
-    
+    // print_ast(ast_root_node);
+    interpret(ast_root_node);
 
     return 0;
 }

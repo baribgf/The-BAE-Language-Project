@@ -57,7 +57,7 @@ char *token_name(TOKEN t)
 
 // Strings stack definitions
 
-Stack_S *create_stack_s()
+Stack_S *stack_create_s()
 {
     Stack_Node_S *top = (Stack_Node_S *)malloc(sizeof(*top));
     CHECK_MALLOC(top);
@@ -74,7 +74,7 @@ Stack_S *create_stack_s()
     return stack;
 }
 
-int destroy_stack_s(Stack_S *stack)
+int stack_destroy_s(Stack_S *stack)
 {
     if (!stack)
         return 1;
@@ -91,7 +91,7 @@ int destroy_stack_s(Stack_S *stack)
     return 0;
 }
 
-int push_stack_s(char *value, Stack_S *stack)
+int stack_push_s(char *value, Stack_S *stack)
 {
     if (!stack)
         return 1;
@@ -114,7 +114,7 @@ int push_stack_s(char *value, Stack_S *stack)
     return 0;
 }
 
-char *pop_stack_s(Stack_S *stack)
+char *stack_pop_s(Stack_S *stack)
 {
     if (!stack || stack->size == 0)
         return (char *)NULL;
@@ -162,7 +162,7 @@ int print_stack_s(Stack_S *stack)
 
 // Integers stack definitions
 
-Stack_I *create_stack_i()
+Stack_I *stack_create_i()
 {
     Stack_Node_I *top = (Stack_Node_I *)malloc(sizeof(*top));
     CHECK_MALLOC(top);
@@ -179,7 +179,7 @@ Stack_I *create_stack_i()
     return stack;
 }
 
-int destroy_stack_i(Stack_I *stack)
+int stack_destroy_i(Stack_I *stack)
 {
     if (!stack)
         return 1;
@@ -196,7 +196,7 @@ int destroy_stack_i(Stack_I *stack)
     return 0;
 }
 
-int push_stack_i(int value, Stack_I *stack)
+int stack_push_i(int value, Stack_I *stack)
 {
     if (!stack)
         return 1;
@@ -219,7 +219,7 @@ int push_stack_i(int value, Stack_I *stack)
     return 0;
 }
 
-int pop_stack_i(Stack_I *stack)
+int stack_pop_i(Stack_I *stack)
 {
     if (!stack || stack->size == 0)
         return 0;
@@ -264,7 +264,7 @@ int print_stack_i(Stack_I *stack)
 
 // Standard stack definitions
 
-Stack_t *create_stack()
+Stack_t *stack_create()
 {
     Stack_Node_t *top = (Stack_Node_t *)malloc(sizeof(*top));
     CHECK_MALLOC(top);
@@ -281,7 +281,7 @@ Stack_t *create_stack()
     return stack;
 }
 
-int destroy_stack(Stack_t *stack)
+int stack_destroy(Stack_t *stack)
 {
     if (!stack)
         return 1;
@@ -299,7 +299,7 @@ int destroy_stack(Stack_t *stack)
     return 0;
 }
 
-int push_stack(void *value, Stack_t *stack)
+int stack_push(void *value, Stack_t *stack)
 {
     if (!stack)
         return 1;
@@ -323,7 +323,7 @@ int push_stack(void *value, Stack_t *stack)
     return 0;
 }
 
-void *pop_stack(Stack_t *stack)
+void *stack_pop(Stack_t *stack)
 {
     if (!stack || stack->size == 0)
         return NULL;
@@ -348,7 +348,7 @@ void *pop_stack(Stack_t *stack)
 
 // Standard linked list definitions
 
-List_t *create_list()
+List_t *list_create()
 {
     List_Node_t *head = (List_Node_t *)malloc(sizeof(List_Node_t));
     List_Node_t *tail = (List_Node_t *)malloc(sizeof(List_Node_t));
@@ -368,7 +368,7 @@ List_t *create_list()
     return list;
 }
 
-int add_list(void *ptr, List_t *list)
+int list_add(void *ptr, List_t *list)
 {
     if (!list)
         return 1;
@@ -394,9 +394,11 @@ int add_list(void *ptr, List_t *list)
     return 0;
 }
 
-int destroy_list(List_t *list)
+int list_destroy(List_t *list)
 {
-    if (!list) return 1;
+    if (!list)
+        return 1;
+
     List_Node_t *node = list->head;
     List_Node_t *next_node;
     while (node)
@@ -405,6 +407,8 @@ int destroy_list(List_t *list)
         free(node);
         node = next_node;
     }
+
+    free(list);
     return 0;
 }
 
@@ -702,4 +706,95 @@ int print_ast_stack(Stack_t *stack)
     printf("]\n");
 
     return 0;
+}
+
+// Map definitions
+
+unsigned long hash(const char *str)
+{
+	unsigned long hash = 5381;
+	int c;
+
+	while (c = *str++)
+		hash = ((hash << 5) + hash) + c;
+
+	return hash;
+}
+
+Map_t *map_create()
+{
+    Map_t *map = (Map_t *)malloc(sizeof(Map_t));
+    CHECK_MALLOC(map)
+
+    map->pairs = list_create();
+    map->size = 0;
+
+    return map;
+}
+
+int map_add(const char *key, void *value, Map_t *map)
+{
+    if (!map)
+        return 1;
+
+    Map_Pair_t *pair = (Map_Pair_t *)malloc(sizeof(Map_Pair_t));
+    CHECK_MALLOC_INT(pair)
+    
+    strcpy(pair->key, key);
+    pair->value = value;
+
+    int state = list_add(pair, map->pairs);
+    map->size++;
+
+    return state;
+}
+
+int map_get(const char *key, void **buff, Map_t *map)
+{
+    if (!map)
+        return 1;
+
+    List_Node_t *node = map->pairs->head;
+    while (node && node->value)
+    {
+        if (strcmp(((Map_Pair_t *)node->value)->key, key) == 0)
+        {
+            *buff = ((Map_Pair_t *)node->value)->value;
+            return 0;
+        }
+
+        node = node->prev;
+    }
+
+    return 1;
+}
+
+int map_update(const char *key, void *value, Map_t *map)
+{
+    if (!map)
+        return 1;
+
+    List_Node_t *node = map->pairs->head;
+    while (node)
+    {
+        if (strcmp(((Map_Pair_t *)node->value)->key, key) == 0)
+        {
+            ((Map_Pair_t *)node->value)->value = value;
+            return 0;
+        }
+
+        node = node->prev;
+    }
+
+    return 1;
+}
+
+int map_destroy(Map_t *map)
+{
+    if (!map)
+        return 1;
+
+    int state = list_destroy(map->pairs);
+    free(map);
+    return state;
 }

@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#ifndef HELPER_H
+#ifndef COMMON_H
 #include "common.h"
 #endif
 
@@ -9,10 +9,10 @@
 #include "tokens.h"
 #endif
 
-#define DebugPreDerive(x) if (debug) { printf("[DEBUG]: Deriving %s, pointing to: %s    ", x, (token != TOKEN_EOF && token != TOKEN_NEWLINE) ? yytext : (token == TOKEN_EOF) ? "EOF" : "\\n"); push_stack_s(x, RDStack); print_stack_s(RDStack); }
-#define DebugPostDerive(x) if (debug) { pop_stack_s(RDStack); printf("[DEBUG]: Returning (%d) from %s, pointing to: %s    ", proc, x, (token != TOKEN_EOF && token != TOKEN_NEWLINE) ? yytext : (token == TOKEN_EOF) ? "EOF" : "\\n"); print_stack_s(RDStack); }
+#define DebugPreDerive(x) if (debug) { printf("[DEBUG]: Deriving %s, pointing to: %s    ", x, (token != TOKEN_EOF && token != TOKEN_NEWLINE) ? yytext : (token == TOKEN_EOF) ? "EOF" : "\\n"); stack_push_s(x, RDStack); print_stack_s(RDStack); }
+#define DebugPostDerive(x) if (debug) { stack_pop_s(RDStack); printf("[DEBUG]: Returning (%d) from %s, pointing to: %s    ", proc, x, (token != TOKEN_EOF && token != TOKEN_NEWLINE) ? yytext : (token == TOKEN_EOF) ? "EOF" : "\\n"); print_stack_s(RDStack); }
 
-int Program();
+int parse(List_t *tokens_list);
 int Expr();
 int Stmnt();
 
