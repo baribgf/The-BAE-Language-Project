@@ -6,7 +6,7 @@
         {
             "label": "Build & Run",
             "type": "shell",
-            "command": "gcc src/*.c -o bin/main -lfl && bin/main Example.txt",
+            "command": "gcc src/*.c -o bin/bael -lfl && bin/bael Example.txt",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

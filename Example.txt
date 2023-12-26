@@ -1,7 +1,7 @@
-A = 0
-B = 1
-C = A + B
-D = A . B
+# Example program outputing the XOR function of 2 input values.
+
+>> A
+>> B
 
 XOR = <a, b> {
     x = !a.b 
@@ -9,8 +9,4 @@ XOR = <a, b> {
     r = x + y
 }
 
-E = !(XOR(C, D) . A) + B
-
-fn()
->> F
-<< E
+<< XOR(A, B)

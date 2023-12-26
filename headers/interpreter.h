@@ -5,12 +5,14 @@
 #include "common.h"
 #endif
 
-int handle_program(AST_Node *ast_node);
-int interpret(AST_Node *ast_root);
+void handle_program(AST_Node *ast_node);
+int handle_inner_program(AST_Node *ast_node);
+int handle_expr(AST_Node *ast_node);
+void interpret(AST_Node *ast_root);
 
 static Map_t *global_ident_table;
 static Stack_t *IT_Stack;
-extern void *it_value;
-extern void *expr_return;
+static unsigned int input_count;
+static unsigned int output_count;
 
 #endif // INTERPRETER_H

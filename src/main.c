@@ -11,8 +11,6 @@ List_t *Tokens_List;
 Stack_S *RDStack;               // Recursive Descent Stack for Debugging !
 Stack_t *AST_Stack;
 AST_Node *ast_root_node;
-void *it_value;
-void *expr_return;
 
 int main(int argc, char *argv[])
 {
@@ -76,8 +74,11 @@ int main(int argc, char *argv[])
     stack_destroy(AST_Stack);
 
     // Program Interpretation Phase /////////////////////////////////
-    // print_ast(ast_root_node);
+    puts("[>] Starting interpretation.");
+    puts("\n The Boolean Algebra Evaluation Language (BAELang). Developed by: BariBGF(C) 2023-2024.");
     interpret(ast_root_node);
+    puts("[>] Interpretation completed with success.");
+    puts("\n~> Take care .. ^_^");
 
     return 0;
 }

@@ -10,25 +10,18 @@
 #include "tokens.h"
 #endif
 
-#define CHECK_INPUT_FILE                         \
-    if (argc < 2)                                \
-    {                                            \
-        fprintf(stderr, "Input file required."); \
-        return 1;                                \
+#define CHECK_INPUT_FILE                                       \
+    if (argc < 2)                                              \
+    {                                                          \
+        fprintf(stderr, "Error: Input source file required."); \
+        return 1;                                              \
     }
 
-#define CHECK_MALLOC(ptr)                             \
-    if (!ptr)                                         \
-    {                                                 \
-        fprintf(stderr, "Couldn't allocate memory."); \
-        return NULL;                                  \
-    }
-
-#define CHECK_MALLOC_INT(ptr)                         \
-    if (!ptr)                                         \
-    {                                                 \
-        fprintf(stderr, "Couldn't allocate memory."); \
-        return 1;                                     \
+#define CHECK_MALLOC(ptr)                                          \
+    if (!ptr)                                                      \
+    {                                                              \
+        fprintf(stderr, "Fatal error: Couldn't allocate memory."); \
+        exit(2);                                                   \
     }
 
 #define INITIALIZE_INPUT_FILE yyin = open_file(filename, "r");
@@ -145,6 +138,17 @@ typedef struct map_t
     int size;
     List_t *pairs;
 } Map_t;
+
+typedef struct fundef_it_val {
+    List_t *params;
+    AST_Node *first_stmnt;
+} Fundef_IT_Val;
+
+typedef struct it_value_t
+{
+    int value;
+    Fundef_IT_Val *fundef_val;
+} IT_Value_t;
 
 AST_Node *create_ast_node(AST_Node_Type type);
 AST_Node *create_AST_Program_Node(AST_Node *first_stmnt);

@@ -103,7 +103,7 @@ int stack_push_s(char *value, Stack_S *stack)
     else
     {
         Stack_Node_S *new_top = (Stack_Node_S *)malloc(sizeof(new_top));
-        CHECK_MALLOC_INT(new_top);
+        CHECK_MALLOC(new_top);
 
         new_top->value = value;
         new_top->prev = stack->top;
@@ -208,7 +208,7 @@ int stack_push_i(int value, Stack_I *stack)
     else
     {
         Stack_Node_I *new_top = (Stack_Node_I *)malloc(sizeof(new_top));
-        CHECK_MALLOC_INT(new_top);
+        CHECK_MALLOC(new_top);
 
         new_top->value = value;
         new_top->prev = stack->top;
@@ -312,7 +312,7 @@ int stack_push(void *value, Stack_t *stack)
     else
     {
         Stack_Node_t *new_top = (Stack_Node_t *)malloc(sizeof(*new_top));
-        CHECK_MALLOC_INT(new_top);
+        CHECK_MALLOC(new_top);
 
         new_top->value = value;
         new_top->prev = stack->top;
@@ -376,7 +376,7 @@ int list_add(void *ptr, List_t *list)
     if (list->size > 0)
     {
         List_Node_t *head = (List_Node_t *)malloc(sizeof(List_Node_t));
-        CHECK_MALLOC_INT(head)
+        CHECK_MALLOC(head)
         head->value = ptr;
         head->next = NULL;
         head->prev = list->head;
@@ -680,6 +680,23 @@ void print_ast(AST_Node *root)
 
 void destroy_ast_node(AST_Node *node)
 {
+    if (!node)
+        return;
+    
+    destroy_ast_node(node->first_stmnt);
+    destroy_ast_node(node->next_stmnt);
+    destroy_ast_node(node->ident);
+    destroy_ast_node(node->expr);
+    destroy_ast_node(node->first_arg);
+    destroy_ast_node(node->next_arg);
+    destroy_ast_node(node->first_param);
+    destroy_ast_node(node->next_param);
+    destroy_ast_node(node->left_side);
+    destroy_ast_node(node->right_side);
+    destroy_ast_node(node->operator);
+    destroy_ast_node(node->operand);
+    destroy_ast_node(node->expand);
+
     free(node);
 }
 
@@ -738,7 +755,7 @@ int map_add(const char *key, void *value, Map_t *map)
         return 1;
 
     Map_Pair_t *pair = (Map_Pair_t *)malloc(sizeof(Map_Pair_t));
-    CHECK_MALLOC_INT(pair)
+    CHECK_MALLOC(pair)
     
     strcpy(pair->key, key);
     pair->value = value;
